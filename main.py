@@ -117,7 +117,7 @@ if __name__ == '__main__':
         model_paths = sorted(glob.glob(os.path.join(opt.previous_dir, '*.pth')))
         
         for path in model_paths:
-            if path.split('/')[-1].startswith('model'):
+            if path.split(os.sep)[-1].startswith('model'):
                 model_path = path
                 print(model_path)
 
