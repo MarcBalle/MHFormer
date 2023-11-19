@@ -9,11 +9,13 @@ import torch
 import glob
 from tqdm import tqdm
 import copy
-from IPython import embed
+# from IPython import embed
 
 sys.path.append(os.getcwd())
 from model.mhformer import Model
 from common.camera import *
+from common.load_data_hm36 import Fusion
+from common.h36m_dataset import Human36mDataset
 
 import matplotlib
 import matplotlib.pyplot as plt 
@@ -277,15 +279,29 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--video', type=str, default='sample_video.mp4', help='input video')
     parser.add_argument('--gpu', type=str, default='0', help='input video')
+    parser.add_argument('--viz-subject', type=str, required=True, help='subject to visualize')
+    parser.add_argument('--viz-action', type=str, required=True)
+    parser.add_argument('--viz-camera', type=str, required=True)
+    parser.add_argument('--crop_uv', type=int, default=0)
+    parser.add_argument('--root_path', type=str, default='dataset/')
+    parser.add_argument('--dataset', type=str, default='h36m')
+    parser.add_argument('-k', '--keypoints', default='gt', type=str)
     args = parser.parse_args()
-
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
     video_path = './demo/video/' + args.video
     video_name = video_path.split('/')[-1].split('.')[0]
     output_dir = './demo/output/' + video_name + '/'
 
-    get_pose2D(video_path, output_dir)
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+
+    root_path = args.root_path
+    dataset_path = root_path + 'data_3d_' + args.dataset + '.npz'
+
+    dataset = Human36mDataset(dataset_path, args)
+    test_data = Fusion(opt=args, train=False, viz=True, dataset=dataset, root_path=root_path, viz_subject=args.viz_subject, viz_output_dir=output_dir)
+
+    """ get_pose2D(video_path, output_dir) """
+
     get_pose3D(video_path, output_dir)
     img2video(video_path, output_dir)
     print('Generating demo successful!')

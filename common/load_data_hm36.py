@@ -1,3 +1,4 @@
+import os
 
 import torch.utils.data as data
 import numpy as np
@@ -7,22 +8,34 @@ from common.camera import world_to_camera, normalize_screen_coordinates
 from common.generator import ChunkedGenerator
 
 class Fusion(data.Dataset):
-    def __init__(self, opt, dataset, root_path, train=True):
+    def __init__(self, opt, dataset, root_path, train=True, viz=False, viz_subject=None, viz_output_dir="."):
         self.data_type = opt.dataset
         self.train = train
-        self.keypoints_name = opt.keypoints
         self.root_path = root_path
-
-        self.train_list = opt.subjects_train.split(',')
-        self.test_list = opt.subjects_test.split(',')
-        self.action_filter = None if opt.actions == '*' else opt.actions.split(',')
-        self.downsample = opt.downsample
-        self.subset = opt.subset
-        self.stride = opt.stride
+        self.keypoints_name = opt.keypoints
         self.crop_uv = opt.crop_uv
-        self.test_aug = opt.test_augmentation
-        self.pad = opt.pad
-        if self.train:
+        self.viz_action = opt.viz_action
+        self.viz_camera = int(opt.viz_camera)
+
+        try:
+            self.train_list = opt.subjects_train.split(',')
+            self.test_list = opt.subjects_test.split(',')
+            self.action_filter = None if opt.actions == '*' else opt.actions.split(',')
+            self.downsample = opt.downsample
+            self.subset = opt.subset
+            self.stride = opt.stride
+            self.test_aug = opt.test_augmentation
+            self.pad = opt.pad
+        except AttributeError:
+            pass
+
+        if viz:
+            self.keypoints = self.prepare_data(dataset, [viz_subject])[viz_subject][self.viz_action][self.viz_camera]
+            viz_output_dir = os.path.join(viz_output_dir, "input_2D")
+            os.makedirs(viz_output_dir, exist_ok=True)
+            np.savez(os.path.join(viz_output_dir, "keypoints.npz"), reconstruction=self.keypoints[np.newaxis])
+
+        elif self.train:
             self.keypoints = self.prepare_data(dataset, self.train_list)
             self.cameras_train, self.poses_train, self.poses_train_2d = self.fetch(dataset, self.train_list,
                                                                                    subset=self.subset)
