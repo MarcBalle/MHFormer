@@ -129,7 +129,7 @@ def showimage(ax, img):
     ax.imshow(img)
 
 
-def get_pose3D(video_path, output_dir):
+def get_pose3D(video_path, output_dir, rot, t):
     args, _ = argparse.ArgumentParser().parse_known_args()
     args.layers, args.channel, args.d_hid, args.frames = 3, 512, 1024, 351
     args.pad = (args.frames - 1) // 2
@@ -209,9 +209,10 @@ def get_pose3D(video_path, output_dir):
 
         output_3d_all.append(post_out)
 
-        rot =  [0.1407056450843811, -0.1500701755285263, -0.755240797996521, 0.6223280429840088]
-        rot = np.array(rot, dtype='float32')
-        post_out = camera_to_world(post_out, R=rot, t=0)
+        # rot =  [0.1407056450843811, -0.1500701755285263, -0.755240797996521, 0.6223280429840088]
+        """ rot = np.array(rot, dtype='float32')
+        t = np.array(t, dtype='float32') """
+        post_out = camera_to_world(post_out, R=rot, t=t)
         post_out[:, 2] -= np.min(post_out[:, 2])
 
         input_2D_no = input_2D_no[args.pad]
@@ -299,10 +300,11 @@ if __name__ == "__main__":
 
     dataset = Human36mDataset(dataset_path, args)
     test_data = Fusion(opt=args, train=False, viz=True, dataset=dataset, root_path=root_path, viz_subject=args.viz_subject, viz_output_dir=output_dir)
+    cam = dataset.cameras()[args.viz_subject][args.viz_camera]
 
     """ get_pose2D(video_path, output_dir) """
 
-    get_pose3D(video_path, output_dir)
+    get_pose3D(video_path, output_dir, rot=np.array(cam["orientation"], dtype="float32"), t=np.array(cam["translation"], dtype="float32"))
     img2video(video_path, output_dir)
     print('Generating demo successful!')
 
