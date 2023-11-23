@@ -300,7 +300,7 @@ if __name__ == "__main__":
 
     dataset = Human36mDataset(dataset_path, args)
     test_data = Fusion(opt=args, train=False, viz=True, dataset=dataset, root_path=root_path, viz_subject=args.viz_subject, viz_output_dir=output_dir)
-    cam = dataset.cameras()[args.viz_subject][args.viz_camera]
+    cam = dataset.cameras()[args.viz_subject][int(args.viz_camera)]
 
     """ get_pose2D(video_path, output_dir) """
 
