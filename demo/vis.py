@@ -154,7 +154,8 @@ def get_pose3D(video_path, output_dir, rot, t):
     keypoints = np.load(output_dir + 'input_2D/keypoints.npz', allow_pickle=True)['reconstruction']
 
     cap = cv2.VideoCapture(video_path)
-    video_length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    # video_length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    video_length = 0
 
     ## 3D
     print('\nGenerating 3D pose...')
@@ -181,7 +182,8 @@ def get_pose3D(video_path, output_dir, rot, t):
         joints_left =  [4, 5, 6, 11, 12, 13]
         joints_right = [1, 2, 3, 14, 15, 16]
 
-        input_2D = normalize_screen_coordinates(input_2D_no, w=img_size[1], h=img_size[0])  
+        # input_2D = normalize_screen_coordinates(input_2D_no, w=img_size[1], h=img_size[0])
+        input_2D = copy.deepcopy(input_2D_no)  
 
         input_2D_aug = copy.deepcopy(input_2D)
         input_2D_aug[ :, :, 0] *= -1
@@ -254,8 +256,9 @@ def get_pose3D(video_path, output_dir, rot, t):
         image_3d = plt.imread(image_3d_dir[i])
 
         ## crop
-        edge = (image_2d.shape[1] - image_2d.shape[0]) // 2
-        image_2d = image_2d[:, edge:image_2d.shape[1] - edge]
+        edge = (image_2d.shape[0] - image_2d.shape[1]) // 2
+        # image_2d = image_2d[:, edge:image_2d.shape[1] - edge]
+        image_2d = image_2d[edge:image_2d.shape[0] - edge, :]
 
         edge = 102
         image_3d = image_3d[edge:image_3d.shape[0] - edge, edge:image_3d.shape[1] - edge]
