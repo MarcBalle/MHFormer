@@ -1,4 +1,8 @@
-common/__pycache__
+**/__pycache__/
 checkpoint
 dataset
 .vscode
+demo/video
+demo/output
+demo/input
+output.mp4
