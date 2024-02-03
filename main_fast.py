@@ -107,13 +107,13 @@ if __name__ == "__main__":
 
     model.eval()
 
-    # Input in demo/input
+    # Input in demo/input (nframes x 17 x 2)
     keypoints = np.load(
         os.path.join("demo", "input", args.keypoints),
         allow_pickle=True,
     )["keypoints"]
 
-    # Include batch size (bs x nframes x kp_x x kp_y)
+    # Include batch size (bs x nframes x 17 x 2)
     keypoints = np.expand_dims(keypoints, axis=0)
 
     joints_left = [4, 5, 6, 11, 12, 13]
